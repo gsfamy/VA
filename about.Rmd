@@ -1,0 +1,10 @@
+---
+title: "About this site"
+description: |
+  This website consists of a collection of works done for ISSS608 Visual Analytisc and Applications.
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
