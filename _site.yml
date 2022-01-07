@@ -12,12 +12,12 @@ navbar:
   left:
     - text: "Take-home Exercise"
       menu:
-      - text: "Take-home Exercise 1"
-        href: TH_Ex01.html
+        - text: "Take-home Exercise 1"
+          href: "TH_Ex/TH_Ex01/TH_Ex01.html"
     - text: "DataViz Makeover"
       menu:
-      - text: "DataViz 1"
-        href: DataViz1.html
-      - text: "DataViz 2"
-        href: DataViz2.html
+        - text: "DataViz 1"
+          href: DataViz1.html
+        - text: "DataViz 2"
+          href: DataViz2.html
 output: distill::distill_article
