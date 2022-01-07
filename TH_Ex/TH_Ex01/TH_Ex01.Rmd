@@ -4,9 +4,9 @@ description: |
   In this exercise, I learned hoow to edit a web article by using distill for RMarkdown.
 author:
   - name: Gong Shufen 
-    url: linkedin.com/in/shufen-gong
+    url: https://www.linkedin.com/public-profile/settings?trk=d_flagship3_profile_self_view_public_profile
     affiliation: MITB(Analytics)
-    affiliation_url: https://example.com/spacelysprokets
+    affiliation_url: https://scis.smu.edu.sg/master-it-business/analytics-track/curriculum
 date: "`r Sys.Date()`"
 output: distill::distill_article
 ---
@@ -43,7 +43,7 @@ Before you get started, you are required:
 * to create a new R Markdown document
   +  using distill for RMarkdown
 
-Next, you will use the code chunk below to install and launch [**ggpubr**](https://rpkgs.datanovia.com/ggpubr/) and **tidyverse** in RStudio.
+Next, you will use the code chunk below to install and launch [**ggpubr**](https://rpkgs.datanovia.com/ggpubr/) and [**tidyverse**](https://www.tidyverse.org/packages/) in RStudio.
 
 ```{r}
 packages = c('ggpubr', 'tidyverse')
