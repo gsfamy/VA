@@ -1,5 +1,5 @@
 ---
-title: "Take-home Exercise 1"
+title: "In-class Exercise 2"
 description: |
   A new article created using the Distill format.
 author:
@@ -106,21 +106,3 @@ freq_cum <- freq_sorted %>%
   mutate(cumfreq = cumsum(Returns))
 ```
 
-# ggplot2
-
-There are two types of bar charts: geom_bar() and geom_col(). geom_bar() makes the height of the bar proportional to the number of cases in each group (or if the weight aesthetic is supplied, the sum of the weights). If you want the heights of the bars to represent values in the data, use geom_col() instead. geom_bar() uses stat_count() by default: it counts the number of cases at each x position. geom_col() uses stat_identity(): it leaves the data as is. Therefore we use the geom_col() because of the known Return value as shown in the code chunk below.
-
-```{r}
-ggplot(data = freq_cum,
-       aes(y = Returns,
-           x= `Sub-Category`)) +
-  geom_col(fill = "lightblue")+
-  ylim(0,3226)+
-  ylab("absolute frequency")+
-  theme_minimal()+
-  theme(panel.background = element_rect(fill ="white",colour ="black",size =0.5,
-                                        linetype ="solid"),
-        panel.grid.major = element_line(size =0.5,linetype ='solid',colour ="grey"),
-        panel.grid.minor = element_line(size =0.25,linetype ='solid',colour ="grey"))+
-  geom_line()
-```
