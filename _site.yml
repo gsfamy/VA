@@ -13,7 +13,7 @@ navbar:
     - text: "Take-home Exercise"
       menu:
         - text: "Take-home Exercise 1"
-          href: "TH_Ex/TH_Ex01/TH_Ex01.html"
+          href: "TH_Ex/TH_Ex01/TH_Ex01_distill.html"
     - text: "DataViz Makeover"
       menu:
         - text: "DataViz 1"
