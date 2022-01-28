@@ -1,0 +1,177 @@
+---
+title: "Take-home Exercise 1"
+description: |
+   Creating data visualisation beyond default.
+author:
+  - name: Gong Shufen 
+    url: https://www.linkedin.com/public-profile/settings?trk=d_flagship3_profile_self_view_public_profile
+    affiliation: SMU MITB(AT)
+    affiliation_url: https://scis.smu.edu.sg/master-it-business/analytics-track/curriculum
+date: "`r Sys.Date()`"
+output: distill::distill_article
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      eval = TRUE,
+                      warning = FALSE,
+                      message = FALSE,
+                      fig.retina = 3)
+```
+# Overview
+
+In this take-home exercise, two data visualisation tasks will be prepared. They are:
+
++ **Task 1**: A pareto chart showing the distribution of returns by product sub-category. Note that the superstore-2021.xls file is used to do this task.
+
++ **Task 2**: A age-sex pyramid showing the demographic structure of Singapore by age cohort and gender. For this task, the data entitle *Singapore Residents by Planning Area / Subzone, Age Group, Sex and Type of Dwelling, June 2021* will be used. The data set is available at [Department of Statistics](https://www.singstat.gov.sg/) home page.
+
+# Installing and loading the required libraries
+
+Before we get started, it is important for us to ensure that the required R packages have been installed. For the purpose of the exercise, the follow tidyverse packages will be used:
+
++ [reaxl](https://readxl.tidyverse.org/) package will be used to read and parse a worksheet into R as a tibble data frame format. (It is important to note that the R object is in tibble data frame and not the generic data frame).
++ [dplyr](https://dplyr.tidyverse.org/) package will be used to perform data transformation and data wrangling tasks
++ [ggplot2](https://ggplot2.tidyverse.org/) package will be used to building the pareto chart by using the principle of [Layered Grammar of Graphs](https://vita.had.co.nz/papers/layered-grammar.html).
+
+```{r}
+packages = c('tidyverse', 'readxl', 'knitr')
+
+for(p in packages){
+  if(!require(p, character.only = T)){
+    install.packages(p)
+  }
+  library(p, character.only = T)
+}
+```
+It is important note that readxl package has to be listed separately in the packages list because it is not part of the core tidyverse package.
+
+# Task 1 
+
+## Data Import for Pareto Chart
+
+In this exercise, superstore-2021 data set will be used in this example. It is an MS Excel workbook. It consists of three worksheets, namely: Orders, People and Returns.
+
+The code chunk below imports ***superstore-2021.xls*** into R environment by using [read_xls()](https://readxl.tidyverse.org/) function.
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+orders <- read_xls("data/Superstore-2021.xls",
+                   sheet = "Orders")
+returns <- read_xls("data/Superstore-2021.xls",
+                   sheet = "Returns")
+```
+
+## Data Wrangling for Pareto Chart
+
+### Joining the two data frames
+
+In this step, the [left_join()](https://dplyr.tidyverse.org/reference/mutate-joins.html) of* **dplyr** is used to join the returns data frame and orders data frame by using Order ID as the unique identifier.
+
+```{r}
+joined_tab <- left_join(returns, orders,
+                        by = c('Order ID' = 'Order ID'))
+```
+
+### Compute the frequency count by Sub-Category
+
+Next, we are going to compute the frequency count of returns by sub-category by using the *group-by* method.
+
+#### The group-by method
+
+In the code chunk below, [group_by()](https://dplyr.tidyverse.org/reference/group_by.html) of dplyr package is used to group the orders by Sub-Category. Then, [summarise()](https://dplyr.tidyverse.org/reference/summarise.html) of dplyr is used to count (i.e. [n()](https://dplyr.tidyverse.org/reference/context.html)) the number of returned orders.
+
+```{r}
+freq_returned <- joined_tab %>%
+  group_by(`Sub-Category`) %>%
+  summarise('Returns' = n()) %>%
+  ungroup()
+```
+
+### Sorting data
+
+By default, the values of the tibble data frame is sorted according to the values of the first column. Before we can compute the cumulative frequency, we need to sort the values in the sub-category field by the values in the Returns field. To accomplish this task, the [arrange()](https://dplyr.tidyverse.org/reference/arrange.html) of dplyr package is used as shown in the code chunk below.
+
+```{r}
+freq_sorted <- freq_returned %>%
+  arrange(desc(Returns))
+```
+
+###  Computing the cumulative frequency
+
+Our next task is to compute the cumulative frequency of returns by product sub-category. This task will be performed by using [mutate()](https://dplyr.tidyverse.org/reference/mutate.html) of dplyr package and [cumsum()](https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/cumsum) of Base R as shown in the code chunk below.
+
+```{r}
+freq_cum <- freq_sorted %>%
+  mutate(cumfreq = cumsum(Returns))
+```
+
+## Pareto Chart visualisation 
+
+Pareto chart is a popular data visualisation use to reveal something like the [80-20 rule](https://en.wikipedia.org/wiki/Pareto_principle).
+
+The purpose of the Pareto chart is to highlight the most important among a (typically large) set of factors. In market share study, Pareto charts are useful to reveal if the business is dominated by a handful of key products or customers. In general, businesses will try to avoid their businesses over-dependent by a few products or customers because if something happen to their key products or business partners, the businesses will be very badly affected.
+
+In the nutshell, a Pareto chart is a dual axis chart. The y-axis on the left (also known as primary y-axis) shows the absolute frequency of the observations and their values are presented as bars. The y-axis on the right shows the cumulative frequency of the observed values and they are presented as dots. These dots are then joined by a smooth line.
+
+There are two types of bar charts: geom_bar() and geom_col(). geom_bar() makes the height of the bar proportional to the number of cases in each group (or if the weight aesthetic is supplied, the sum of the weights). If you want the heights of the bars to represent values in the data, use geom_col() instead. geom_bar() uses stat_count() by default: it counts the number of cases at each x position. geom_col() uses stat_identity(): it leaves the data as is. Therefore we use the geom_col() because of the known Return value as shown in the code chunk below.
+
+```{r,fig.width=12,fig.height=6}
+ggplot(data=freq_cum,
+       aes(x = reorder(`Sub-Category`,-Returns))) +
+  geom_col(aes(y = Returns), color='lightblue',fill='lightblue') +
+  geom_line(aes(y = cumfreq/sum(Returns)*3226.0, group=1), size = 0.5, color = "black" ) +
+  geom_line(aes(y = 0.8*3226.0, group = 1), size = 0.5, color = "grey", linetype = "dashed")+
+  geom_point(aes(y = cumfreq/sum(Returns)*3226.0), size = 0.5) +
+  xlab("Sub_Category") +
+  scale_y_continuous(
+    name = "No. of Returns",
+    sec.axis = sec_axis(trans=~./3226.0, 
+                        name = "% of Total Running Sum of Count of Returns",
+                        labels = scales::percent)) +
+  theme_minimal() +
+  theme(panel.border = element_rect(colour="grey", fill = NA),
+        strip.background = element_rect(fill = "grey")) +
+  theme(axis.text.x=element_text(angle=0, hjust= 0.5)) +
+  theme(axis.title.y=element_text(angle=90)) +
+  ggtitle("Pareto Chart of Returns by Sub-category") +
+  theme(plot.title = element_text(size = 13, face = "bold", hjust = 0))
+```
+
+# Task 2
+
+## Data Import for Population Pyramid
+
+The code chunk below imports *respopagesextod2021.csv* into R environment by using [read_csv()](https://readr.tidyverse.org/reference/read_delim.html) function of readr package.
+
+```{r}
+respopagesex <- read_csv("data/respopagesextod2021.csv")
+```
+
+## Population Pyramid visualisation
+
+A population pyramid or "age-sex pyramid" is a graphical illustration of the distribution of a population (typically that of a country or region of the world) by age groups and sex; it typically takes the shape of a pyramid when the population is growing. Males are usually shown on the left and females on the right, and they may be measured in absolute numbers or as a percentage of the total population. The pyramid can be used to visualize the age of a particular population. It is also used in ecology to determine the overall age distribution of a population; an indication of the reproductive capabilities and likelihood of the continuation of a species.
+
+For the symmetry of the graph, the [coord_flip](https://ggplot2.tidyverse.org/reference/coord_flip.html) will be used to achieve this feature as shown in the code chunk below. 
+
+```{r, fig.width = 7}
+ggplot(data=respopagesex,
+       aes(x = AG, fill = Sex)) +
+  geom_col(data = subset(respopagesex, Sex =="Females"), aes(y = Pop)) +
+  geom_col(data = subset(respopagesex, Sex =="Males"), aes(y = -Pop)) +
+  xlab("Age") +
+  scale_y_continuous(name = "Population",
+                     breaks = seq(-160000, 160000, 20000),
+                     labels = paste0(as.character(c(seq(160, 0, -20), seq(20, 160, 20))),"k")) +
+  coord_flip() +
+  theme_bw() + 
+  ggtitle("Population Pyramid") +
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = 0))
+```
+
+# Benefits of using R over Tableau for Data Visualisations
+
++ Since the difference between Tableau and R in Pareto chart, the benefit of R will show more reasonable 'No. of Returns', which is 3226 when '% of Total Running Sum of Count of Returns' is 100%. But the Tableau graph will show about 600 when '% of Total Running Sum of Count of Returns' is 100%. Actually this could be confusing for some users.
+
++ Since the difference between Tableau and R in Population Pyramid, the benefit of R will show legend automatically. But the Tableau need to do it manually, it is inefficient. And the R can use the coord_flip to change the direction of bar chart, but the Tableau can only use the tricks of caculation to complete that.
+
++ Besides, there are some many packages and arguments to customise the visualisation in R, but those are all defined by the Tableau. So it is not as flexible as R. Therefore, more fascinating and comprehensive plot can be achieved by Rstudio.

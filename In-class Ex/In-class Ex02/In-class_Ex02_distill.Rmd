@@ -1,0 +1,126 @@
+---
+title: "Take-home Exercise 1"
+description: |
+  A new article created using the Distill format.
+author:
+  - name: Gong Shufen 
+    url: 
+    affiliation: SMU MITB(AT)
+    affiliation_url: 
+date: "`r Sys.Date()`"
+output: distill::distill_article
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      eval = TRUE,
+                      warning = FALSE,
+                      message = FALSE,
+                      fig.retina = 3)
+```
+# Overview
+
+# Suggested visualisations and R packages
+
+# Data preparation
+## Installing and loading the required libraries
+Before we get started, it is important for us to ensure that the required R packages have been installed. For the purpose of the exercise, the follow tidyverse packages will be used:
+
++ reaxl package will be used to read and parse a worksheet into R as a tibble data frame format. (It is important to note that the R object is in tibble data frame and not the generic data frame).
++ dplyr package will be used to perform data transformation and data wrangling tasks
++ ggplot2 package will be used to building the pareto chart by using the principle of Layered Grammar of Graphs.
+
+```{r}
+packages = c('tidyverse', 'readxl', 'knitr')
+
+for(p in packages){
+  if(!require(p, character.only = T)){
+    install.packages(p)
+  }
+  library(p, character.only = T)
+}
+```
+It is important note that readxl package has to be listed separately in the packages list because it is not part of the core tidyverse package.
+
+# Data Import
+In this exercise, superstore-2021 data set will be used in this example. It is an MS Excel workbook. It consists of three worksheets, namely: Orders, People and Returns.
+
+The code chunk below imports ***superstore-2021.xls*** into R environment by using read_csv() function of readr package.
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+orders <- read_xls("data/Superstore-2021.xls",
+                   sheet = "Orders")
+returns <- read_xls("data/Superstore-2021.xls",
+                   sheet = "Returns")
+```
+
+# Data Wrangling
+
+## Joining the two data frames
+
+In this step, the left_join() of dplyr is used to join the returns data frame and orders data frame by using Order ID as the unique identifier.
+
+```{r}
+joined_tab <- left_join(returns, orders,
+                        by = c('Order ID' = 'Order ID'))
+```
+
+## Compute the frequency count by Sub-Category
+
+Next, we are going to compute the frequency count of returns by sub-category by using the group-by method.
+
+### The group-by method
+
+In the code chunk below, group_by() of dplyr package is used to group the orders by Sub-Category. Then, summarise() of dplyr is used to count (i.e. n()) the number of returned orders.
+
+```{r}
+freq_returned <- joined_tab %>%
+  group_by(`Sub-Category`) %>%
+  summarise('Returns' = n()) %>%
+  ungroup()
+```
+
+### The count method
+
+```{r}
+freq_returned <- joined_tab %>% 
+  count(`Sub-Category`) %>%
+  rename(Returns = n)
+```
+
+## Sorting data
+
+Before we can compute the cumulative frequency, we need to sort the values in the sub-category field by the values in the Returns field. To accomplish this task, the arrange() of dplyr package is used as shown in the code chunk below.
+
+```{r}
+freq_sorted <- freq_returned %>%
+  arrange(desc(Returns))
+```
+
+##  Computing the cumulative frequency
+
+Out next task is to compute the cumulative frequency of returns by product sub-category. This task will be performed by using mutate() of dplyr package and cumsum() of Base R as shown in the code chunk below.
+
+```{r}
+freq_cum <- freq_sorted %>%
+  mutate(cumfreq = cumsum(Returns))
+```
+
+# ggplot2
+
+There are two types of bar charts: geom_bar() and geom_col(). geom_bar() makes the height of the bar proportional to the number of cases in each group (or if the weight aesthetic is supplied, the sum of the weights). If you want the heights of the bars to represent values in the data, use geom_col() instead. geom_bar() uses stat_count() by default: it counts the number of cases at each x position. geom_col() uses stat_identity(): it leaves the data as is. Therefore we use the geom_col() because of the known Return value as shown in the code chunk below.
+
+```{r}
+ggplot(data = freq_cum,
+       aes(y = Returns,
+           x= `Sub-Category`)) +
+  geom_col(fill = "lightblue")+
+  ylim(0,3226)+
+  ylab("absolute frequency")+
+  theme_minimal()+
+  theme(panel.background = element_rect(fill ="white",colour ="black",size =0.5,
+                                        linetype ="solid"),
+        panel.grid.major = element_line(size =0.5,linetype ='solid',colour ="grey"),
+        panel.grid.minor = element_line(size =0.25,linetype ='solid',colour ="grey"))+
+  geom_line()
+```
