@@ -23,7 +23,9 @@ knitr::opts_chunk$set(echo = TRUE,
 # Suggested visualisations and R packages
 
 # Data preparation
+
 ## Installing and loading the required libraries
+
 Before we get started, it is important for us to ensure that the required R packages have been installed. For the purpose of the exercise, the follow tidyverse packages will be used:
 
 + reaxl package will be used to read and parse a worksheet into R as a tibble data frame format. (It is important to note that the R object is in tibble data frame and not the generic data frame).

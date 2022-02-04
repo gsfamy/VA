@@ -1,0 +1,186 @@
+---
+title: "Take-home Exercise 2"
+description: |
+   Creating data visualisation beyond default.
+author:
+  - name: Gong Shufen 
+    url: https://www.linkedin.com/public-profile/settings?trk=d_flagship3_profile_self_view_public_profile
+    affiliation: SMU MITB(AT)
+    affiliation_url: https://scis.smu.edu.sg/master-it-business/analytics-track/curriculum
+date: "`r Sys.Date()`"
+output: distill::distill_article
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      eval = TRUE,
+                      warning = FALSE,
+                      message = FALSE,
+                      fig.retina = 3)
+```
+# Overview
+
+In this take-home exercise, you are required to apply appropriate interactivity and animation methods you had learned in last week lesson to design an age-sex pyramid based data visualisation to show the changes of demographic structure of Singapore by age cohort and gender between 2000-2020 at planning area level.
+
+For this task, the data sets entitle *Singapore Residents by Planning Area / Subzone, Age Group, Sex and Type of Dwelling, June 2000-2010* and *Singapore Residents by Planning Area / Subzone, Age Group, Sex and Type of Dwelling, June 2011-2020* will be used. The data sets are available at [Department of Statistics](https://www.singstat.gov.sg/) home page.
+
+# Installing and loading the required libraries
+
+Before we get started, it is important for us to ensure that the required R packages have been installed. For the purpose of the exercise, the follow packages will be used:
+
++ [ggiraph](https://davidgohel.github.io/ggiraph/index.html) package will be used to create dynamic ggplot graphs.
++ [plotly](https://plotly.com/r/getting-started/) package will be used to create creating interactive web-based graphs via the open source JavaScript graphing library [plotly.js](https://plotly.com/javascript/).
++ [DT](https://rstudio.github.io/DT/) package will be used to provide filtering, pagination, sorting, and many other features in the tables.
++ [gganimate](https://gganimate.com/index.html) package will be used to customise how the plot object should change with time.
++ [tidyverse](https://ggplot2.tidyverse.org/) package will be used to building the pareto chart by using the principle of [Layered Grammar of Graphs](https://vita.had.co.nz/papers/layered-grammar.html)
++ [dplyr](https://dplyr.tidyverse.org/) package will be used to perform data transformation and data wrangling tasks.
+
+```{r}
+
+packages = c('ggiraph','plotly',
+             'DT','gganimate',
+             'tidyverse')
+
+for(p in packages){
+  if (!require(p, character.only =T)){
+    install.packages(p)
+    }
+  library(p,character.only =T)
+}
+```
+
+# Data Import 
+
+The code chunk below imports *respopagesextod2000to2010.csv* and *respopagesextod2011to2020.csv* into R environment by using [read_csv()](https://readr.tidyverse.org/reference/read_delim.html) function of readr package.
+
+And the [bind_rows](https://dplyr.tidyverse.org/reference/bind.html) of dplyr package will be used to combine the two data sets by columns to get the summarized data set to build the age-sex pyramid.
+
+```{r}
+respopagesex1 <- read_csv("data/respopagesextod2000to2010.csv")
+
+respopagesex2 <- read_csv("data/respopagesextod2011to2020.csv")
+
+respopagesex <- bind_rows(respopagesex1, respopagesex2)
+```
+
+# Data Wrangling
+
+For the age-sex pyramid, AG, Time, Sex and Pop will be selected and grouped by AG and Sex. Then these groups will be summarised by the total sum of the Pop of these groups and the data will be ordered by Sex and AG as shown in the code chunk below.
+
+```{r}
+AG_pop <- respopagesex %>%
+  group_by(`AG`, `Sex`, `Time`) %>%
+  summarise('Pop'= sum(`Pop`)) %>%
+  ungroup()
+
+order <- c("0_to_4", "5_to_9", "10_to_14", 
+           "15_to_19", "20_to_24", "25_to_29", 
+           "30_to_34", "35_to_39", "40_to_44", 
+           "45_to_49", "50_to_54", "55_to_59",
+           "60_to_64", "65_to_69", "70_to_74", 
+           "75_to_79", "80_to_84", "85_to_89",
+           "90_and_over")
+
+sorted_pop <- AG_pop %>%
+  mutate(AG =  factor(AG, levels = order)) %>%
+  arrange(AG)
+```
+# Interactive Data Visualisation by Crosstalk Method
+
+DataTables provides filtering, pagination, sorting, and many other features in the tables. It is useful to show the corresponding data which you selected in the plot to find any insights.
+
++ *highlight()* is a function of plotly package. It sets a variety of options for brushing (i.e., highlighting) multiple plots. These options are primarily designed for linking multiple plotly graphs, and may not behave as expected when linking plotly to another htmlwidget package via crosstalk. In some cases, other htmlwidgets will respect these options, such as persistent selection in leaflet.
+
++ *bscols()* is a helper function of crosstalk package. It makes it easy to put HTML elements side by side. It can be called directly from the console but is especially designed to work in an R Markdown document.
+
+Code chunk below is used to implement the coordinated brushing:
+
+```{r}
+d <- highlight_key(sorted_pop)
+
+p <- ggplot(d, aes(x = ifelse(Sex == "Males", yes = -Pop, no = Pop), 
+                          y = AG, fill = Sex)) + 
+  geom_col() +
+  scale_x_continuous(breaks = seq(-3500000, 3500000, 1000000), 
+                     labels = paste0(as.character(c(seq(3500, 0, -1000), seq(500, 3500, 1000))),"K")) +
+  labs (x = "Population", y = "Age", title='Singapore Age-Sex Population Pyramid 2021') +
+  theme_bw() +
+  theme(axis.ticks.y = element_blank()) +
+  scale_fill_manual(values = c("Males" = "darkblue", "Females" = "pink"))
+
+gg <- highlight(ggplotly(p),
+                "plotly_selected")
+
+crosstalk::bscols(gg,
+                  DT::datatable(d),
+                  widths = 15)
+```
+# Animated Data Visualisation: gganimate methods
+
+## Building a static population pyramid
+
+A population pyramid or "age-sex pyramid" is a graphical illustration of the distribution of a population (typically that of a country or region of the world) by age groups and sex; it typically takes the shape of a pyramid when the population is growing. Males are usually shown on the left and females on the right, and they may be measured in absolute numbers or as a percentage of the total population. The pyramid can be used to visualize the age of a particular population. It is also used in ecology to determine the overall age distribution of a population; an indication of the reproductive capabilities and likelihood of the continuation of a species.
+
+This static population pyramid will be plotted as shown in the code chunk below.
+
+```{r,fig.width=8}
+
+ ggplot(sorted_pop, aes(x = ifelse(Sex == "Males", yes = -Pop, no = Pop), 
+                          y = AG, fill = Sex)) + 
+  
+  geom_col(alpha = 0.5) +
+  
+  scale_x_continuous(breaks = seq(-3500000, 3500000, 1000000), 
+                     labels = paste0(as.character(c(seq(3500, 0, -1000), 
+                                                    seq(500, 3500, 1000))),"K")) +
+  
+  theme_bw() +
+  
+  theme(axis.ticks.y = element_blank()) +
+  
+  labs(title = 'Singapore Age-Sex Population Pyramid {frame_time}', 
+       x = 'Population', 
+       y = 'Age')
+```
+
+## Building an animated population pyramid
+
+For the task goal to show the changes of demographic structure of Singapore by age cohort and gender between 2000-2020 at planning area level, gganimate will be used by providing a range of new grammar classes that can be added to the plot object in order to customise how it should change with time.
+
++ transition_*() defines how the data should be spread out and how it relates to itself across time.
++ view_*() defines how the positional scales should change along the animation.
++ shadow_*() defines how data from other points in time should be presented in the given point in time.
++ enter_*()/exit_*() defines how new data should appear and how old data should disappear during the course of the animation.
++ ease_aes() defines how different aesthetics should be eased during transitions.
+
+This animated population pyramid will be plotted as shown in the code chunk below.
+
+```{r}
+
+ggplot(sorted_pop, aes(x = ifelse(Sex == "Males", yes = -Pop, no = Pop), 
+                          y = AG, fill = Sex)) + 
+  
+  geom_col(alpha = 0.5) +
+  
+  scale_x_continuous(breaks = seq(-200000, 200000, 50000), 
+                     labels = paste0(as.character(c(seq(200, 0, -50), seq(50, 200, 50))),"K")) +
+  
+  theme_bw() +
+  
+  theme(axis.ticks.y = element_blank()) +
+  
+  labs(title = 'Singapore Age-Sex Population Pyramid {frame_time}', 
+       x = 'Population', 
+       y = 'Age')+
+  
+  transition_time(as.integer(Time))+
+  
+  ease_aes()
+```
+
+# References and Resources:
+
++ [International population pyramids with ggplot2](https://rpubs.com/walkerke/pyramids_ggplot2)
+
++ [Animating U.S. Population Distributions](https://www.r-bloggers.com/2020/03/animating-u-s-population-distributions/)
+
