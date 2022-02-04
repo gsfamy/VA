@@ -154,6 +154,7 @@ A population pyramid or "age-sex pyramid" is a graphical illustration of the dis
 For the symmetry of the graph, the [coord_flip](https://ggplot2.tidyverse.org/reference/coord_flip.html) will be used to achieve this feature as shown in the code chunk below. 
 
 ```{r, fig.width = 7}
+respopagesex$AG[respopagesex$AG=="5_to_9"] <- "05_to_9"
 ggplot(data=respopagesex,
        aes(x = AG, fill = Sex)) +
   geom_col(data = subset(respopagesex, Sex =="Females"), aes(y = Pop)) +
