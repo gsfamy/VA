@@ -19,7 +19,7 @@ navbar:
     - text: "DataViz Makeover"
       menu:
         - text: "DataViz 1"
-          href: DataViz01.html
+          href: "DV_Ex/DV_Ex01/DV_Ex01_distill.html"
         - text: "DataViz 2"
-          href: DataViz02.html
+          href: "DV_Ex/DV_Ex02/DV_Ex02_distill.html"
 output: distill::distill_article

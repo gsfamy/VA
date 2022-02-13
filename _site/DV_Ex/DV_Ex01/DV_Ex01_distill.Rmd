@@ -1,0 +1,191 @@
+---
+title: "DataViz Makeover 1"
+description: |
+   Explore different perspectives and approaches to design more truthful and enlightening data visualisation.
+author:
+  - name: Gong Shufen 
+    url: https://www.linkedin.com/public-profile/settings?trk=d_flagship3_profile_self_view_public_profile
+    affiliation: SMU MITB(AT)
+    affiliation_url: https://scis.smu.edu.sg/master-it-business/analytics-track/curriculum
+date: "`r Sys.Date()`"
+output: distill::distill_article
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+# 1. Critique of Visualisation
+
+The data visualisation above is created by using data provided by Ministrty of Manpower, Singapore (MOM). The data are available under the page entitle [Statistical Table: Labor Force](https://stats.mom.gov.sg/Pages/LabourForceTimeSeries.aspx). For the purpose of this Dataviz Makeover, we will use the data on *Resident Labour Force Participation Rate by Age and Sex*.
+
+![](img/DataViz1-1.png)
+
+## 1.1 Clarity
+
+1.**Meaningless Tittle:**  The original 'Labour force participation rate' is a meaningless and unclear tittle for readers, it cannot give the enough information such as country, time and so on. Therefore it affects the visualization result with an such inappropriate tittle. It would more meaningful to replace with more reasonable title with insights and subtitle to convey more useful information to readers.
+
+2.**Improper labeling of both x-axis and y-axis:** The x-axis is labelled as 2015 year for every age group, it is wrong display. It should be 2010-2012, so it is misleading and very hard to understand the visualization result for users. It should clarified the 2010-2012 time span in the title, and hide the wrong display for x-axis limited scale. The y-axis is labelled as acronym, not good to understand for users, so it is more proper to change to "Labour Force Participation Rate(%)" and also told the reader for percentage unit.
+
+3.**Improper Chart type:** The chart type is not easy for users to focus on the change from year to year, it should replace by separate line chart to focus on trend in time series and bar chart to identify concrete difference.
+
+4.**Lack of annotation and source:** There is no annotation on the graph that highlights the significant finding or conclusion. It should be added for any important insights to better visualization. And there is no data source recognized in the chart to verify the reliability.
+
+5.**Disorder age group for useless ladder mapping:** It just entertained readers for the ladder map, it cannot identify any insights or conclusion from this chart with disorder age group. It should be sorted in an ascending or descending order so that can find any time-series data change from younger to older.
+
+6.**unclear top-axis and legend:** The top-axis and legend has "70 to 74","70 & Over" and "75 & Over", which are overlapped so caused the redundant bar and line chart in the original visualisation. Therefore it should only use the "70 & Over" data rather than use both of them.
+
+## 1.2 Aesthetics
+
+1.**Too many colors to focus on enlightening people:** The chart used so many different light colors, it is very difficult and useless for readers to focus on any important information. It just for entertaining people which is not proper. It should use single color to show the time-series data change and any exceptional should be paied more attention can use very distinct color to highlight.
+
+2.**Compressed top-axis label:** Because the scale limit, the "70 & Over" and "75 & Over" cannot be showed completely, then it is confusing for readers to understand the meaning of the label. It should be fully displayed with entire view.
+
+3.**Improper data ink of title:** The title is light grey not clear and highlighted for readers to catch it. It should be very distinctive from subtitle and x-axis label to use different color and font size.
+
+4.**Duplicated label in bottom x-axis:** The "2015 Year" appeared every age group which make users to read many duplicated message. It is not the purpose of good visualization, it should change to show in title (2010-2021) and hide in bottom x-axis.
+
+5.**Unclear y-axis range:** The original chart y-axis cannot clearly show that the y-axis continuous value is from 0 to 100. So it should change to fix the range from 0 to 100.
+
+6.**No need for legend:** Because the color is unnecessary, the legend for age group is also no longer need to show.
+
+# 2. Proposed Design
+
+
+The initial sketch of proposed design is as follow:
+
+![](img/proposed design.png)
+
+## 2.1 Advantages of proposed design
+
+### 2.1.1 Clarity
+
+1.**Tittle:** 
+
++ To add a main visual title to give readers the context as "Singapore Resident Labour Force Participation Rate by Age"
+
++ TO have a title for each chart that showcases the main insight.
+
++ To add a functional subtitle for each chart. It should identify more insights and the period covered.
+
+2.**label of both x-axis and y-axis:** 
+
++ Fully displayed label , units and proper format and value of all axis
+
+3.**Chart type:** 
++ Choose line chart to represent the time-series data change.
+
++ Chart 1 will be a modified version of the original visualisation in line chart to show how the Labour Force Participation Rate of different age group changed over the time period from 2010 to 2021.
+
++ Add Chart 2, a bar chart with line to give readers an exact difference between 2010 and 2021 to have a overall comparison at different age group nowdays with the past.
+
+4.**Annotation and source:** 
+
++ Add annotations to both charts to highlight points that support the insights.
+
++ Add data source at foot of visualization to be more reliable.
+
+## 2.2 Aesthetics
+
+1.**Less color and no legend:** 
+
++ Only use two different colors to show exception or different years.
+
++ Remove unnecessary legend.
+
+2.**Title:** 
+
++ Choose distinctive font sizes for main visual title, chart title and chart subtitles.
+
++ Enhance data ink for title and Y-axis and X-axis labels
+
+3.**Y-axis range:**
+
++ The y-axis change to fixed range from 0 to 100.
+
+4.**Reference line:** 
+
++ Add reference line with obvious color and proper format to make it more clear.
+
+
+# Proposed Visualisation on Tableau
+
+Please view the proposed visualisation on Tableau Public [here](https://public.tableau.com/app/profile/amy3598/viz/dataviz-11/Dashboard?publish=yes)
+
+![](img/27.png)
+
+# 4. Step-By-Step Preparation
+
+| No | Step | Action |
+|:--------:| :---------|:--------|
+| 1 | Before starting to plot the chart, the data should be cleaned and wrangle the data. Because the action to prepare data is easy and fast in excel, therefore the earlier stage will be conducted by excel. And for the original visualization purpose, the “mrsd_Res_LFPR_2” will be used between the two sheets in the excel file.|![](img/1.png){ width=95% }|
+| 2 | Delete the column of 1995,2000,2005 for null value as n.a|![](img/2.png){ width=95% }|
+| 3 | According to notes, the 2007a refers to adjusted right data in 2007, so delete 2007 column and rename the 2007a to 2007 |![](img/3.png){ width=95% }|
+| 4 | copy the sheet “mrsd_Res_LFPR_2” to another new sheet, and delete other irrelevant data to only keep the total data which include female and male information | ![](img/4.png){ width=95% }|
+| 5 | Then save the excel file and use Tableau ‘Microsoft Excel’ button to open this file.| ![](img/5.png){ width=95% }|
+| 6 | Drag the second sheet which we chose entitled as ‘mrsd_Res_LFPR_2’ to the data pane.| ![](img/6.png){ width=95% }|
+| 7 |Change the field name to years use ‘Field Names are in first row’ button.| ![](img/7.png){ width=95% }|
+| 8 |Change the table format by clicking the pivot option.| ![](img/8.png){ width=95% }|
+| 9 |Rename the column to ‘Age-group’, ‘Year’ and ‘Labour Force Participation Rate’ for better understanding.| ![](img/9.png){ width=95% }|
+| 10 | Open the sheet 1, and drag the ‘Age-group’ and ‘Year’ to the columns.Then drag the 'Labour Force Participation’ to the rows.| ![](img/11.png){ width=95% }|
+| 11 | Change the default bar chart to line using the 'automotive' under 'Marks.| ![](img/12.png){ width=95% }|
+| 12 | Click the year triangle then click filter to uncheck those years not unsed from 1991 to 2009.| ![](img/14.png){ width=95% }|
+| 13 | The same action for age-group to uncheck option ‘95 to 74’ and ‘75 & over’ which already included in ‘95 & over’.| ![](img/15.png){ width=95% }|
+| 14 | Right click the Y-axis to choose 'edit axis' to fix the range from 0 to 100 and rename the title to 'Labour Force Participation Rate(%)' to show complete name and units.| ![](img/16.png){ width=95% }|
+| 15 | Right click the age, choose the create then set to have a age set.| ![](img/17.png){ width=95% }|
+| 16 | Then check the 20-24 as the age-set.| ![](img/17.png){ width=95% }|
+| 17 | Then drag the age-set to the color pane, and edit the color to red and blue to deferentiate and highlight the decrease at 20-24.| ![](img/18.png){ width=95% }|
+| 18 | Right click the bottom axis then uncheck show header.| ![](img/19.png){ width=95% }|
+| 19 | Right click in blank part of chart to choose annotate and area to add annotation.| ![](img/22.png){ width=95% }|
+| 20 | Double click the chart title to add new proper title and subtitle, then change to the proper format and font size.| ![](img/21.png){ width=95% }|
+| 21 | Right click the y-axis to add reference line to get an average level at different age group.| ![](img/23.png){ width=95% }|
+| 22 | Double click the chart title to add new proper title and subtitle, then change to the proper format and font size.| ![](img/21.png){ width=95% }|
+| 23 | Right click the sheet and choose duplicate to get a copy sheet.| ![](img/01.png){ width=95% }|
+| 24 | Then click the year triangle to choose edit filter to only check the 2010 and 2021.| ![](img/02.png){ width=95% }|
+| 25 | Right click the y-axis to choose remove reference line to get an average level at different age group.| ![](img/03.png){ width=95% }|
+| 26 | Double click the 'Labour Force Participation Rate' get two line graph.| ![](img/04.png){ width=95% }|
+| 27 | Change the second line chart to bar chart.| ![](img/05.png){ width=95% }|
+| 28 | Right click the sum Labour Force Participation Rate to choose the dual axis to get the designed chart.| ![](img/06.png){ width=95% }|
+| 29 | Then as previous step, choose color, edit colors to change the bar color and opacity to get better display.| ![](img/07.png){ width=95% }|
+| 30 | Then as previous step, right click the y-axis to choose the edit axis to fix range from 0 to 100 and rename title with %.| ![](img/08.png){ width=95% }|
+| 31 | Then as previous step, double click the chart title to change the context and format.| ![](img/09.png){ width=95% }|
+| 32 | Then click the button of dashboard to create a ‘Dashboard’.| ![](img/010.png){ width=95% }|
+| 33 | Then Drag ‘Singapore Resident Labour Force Participation Rate by Age(2010-2021)’ sheet to the top and ‘Singapore Resident Labour Force Participation Rate by Age(2010 vs2021)’ sheet to the bottom. Add a dashboard title to indicate the context of the visualization. At the bottom of the charts, add the data source by using the text of objects.| ![](img/011.png){ width=95% }|
+| 34 | Then delete the unnecessary legend for both graph by click remove from dashboard.| ![](img/24.png){ width=95% }|
+| 35 | Then click the show dashboard title to rename the main title and change the format.| ![](img/26.png){ width=95% }|
+| 36 | Hide the worksheets and publish the dashboard to Tableau Public. Tweak the size of the dashboard to ensure that the visualization can be view properly.| ![](img/28.png){ width=95% }|
+
+# 5. Major Observations
+
+1.**Age group from 20-24:** The only drop of Labour Force Participation Rate(%) in all age groups. And it decreased from 65.8% to 62.4%, it seems the difference is not so large, but it is only 56% in 2020, and bounce back 62.4% in 2021, so it might have some reason to show this exceptional trend for lower Participation Rate. For logical thinking, if more and more older people still work because of aging tendency of population, it will have more job position for younger people. Therefore it needs further exploration.
+
+2.**Age group from 65-69:** The largest increase of Labour Force Participation Rate(%) at 65-69 age group. It rose from 30.9% to 50.9%, about 20% increase, which is significant growth. However, the retire age is 62 years old in 2021, and  re-employment age is 65. Although the delaying retirement has been announced to carry out in 2022, but the age still lower than 66. Therefore those 65-69 group Labour Force Participation Rate(%) might work not in this rule, it need more information to know the behind reasons.
+
+3.**Overall trend:** 
+
++ Almost age group, such as 15-19, 25-29, 30-34, 35-39, 40-44, 45-49, 50-54, 55-59, are actually stable with slightly increase. So the main change almost happened in older people which is very consistent with the social problem of aging population, which means the younger people's pension cannot afford so many older people, so those people must work longer to obtain the living expenses.
+
++ The whole distribution seems like normalized and the age group, such as 25-29, 30-34, 35-39, 40-44, 45-49 always had the higher Labour Force Participation Rate than older people, which is reasonable as common sense. 
+
+# 6. References
+
++ [Kelly Koh](https://kellykkw.netlify.app/posts/2021-05-15-dataviz-makeover-1/#step-by-step-preparation)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
