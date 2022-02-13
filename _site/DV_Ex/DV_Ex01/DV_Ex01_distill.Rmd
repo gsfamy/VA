@@ -116,7 +116,7 @@ Please view the proposed visualisation on Tableau Public [here](https://public.t
 # 4. Step-By-Step Preparation
 
 | No | Step | Action |
-|:--------:| :---------|:--------|
+|:-:| :---------|:--------|
 | 1 | Before starting to plot the chart, the data should be cleaned and wrangle the data. Because the action to prepare data is easy and fast in excel, therefore the earlier stage will be conducted by excel. And for the original visualization purpose, the “mrsd_Res_LFPR_2” will be used between the two sheets in the excel file.|![](img/1.png){ width=95% }|
 | 2 | Delete the column of 1995,2000,2005 for null value as n.a|![](img/2.png){ width=95% }|
 | 3 | According to notes, the 2007a refers to adjusted right data in 2007, so delete 2007 column and rename the 2007a to 2007 |![](img/3.png){ width=95% }|
