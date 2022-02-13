@@ -30,7 +30,7 @@ The data visualisation above is created by using data provided by Ministrty of M
 
 4. **Lack of annotation and source:** There is no annotation on the graph that highlights the significant finding or conclusion. It should be added for any important insights to better visualization. And there is no data source recognized in the chart to verify the reliability.
 
-5.**Disorder age group for useless ladder mapping:** It just entertained readers for the ladder map, it cannot identify any insights or conclusion from this chart with disorder age group. It should be sorted in an ascending or descending order so that can find any time-series data change from younger to older.
+5. **Disorder age group for useless ladder mapping:** It just entertained readers for the ladder map, it cannot identify any insights or conclusion from this chart with disorder age group. It should be sorted in an ascending or descending order so that can find any time-series data change from younger to older.
 
 6. **unclear top-axis and legend:** The top-axis and legend has "70 to 74","70 & Over" and "75 & Over", which are overlapped so caused the redundant bar and line chart in the original visualisation. Therefore it should only use the "70 & Over" data rather than use both of them.
 
