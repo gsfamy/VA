@@ -132,13 +132,13 @@ Please view the proposed visualisation on Tableau Public [here](https://public.t
 | 13 | The same action for age-group to uncheck option ‘95 to 74’ and ‘75 & over’ which already included in ‘95 & over’.| ![](img/15.png){ width=95% }|
 | 14 | Right click the Y-axis to choose 'edit axis' to fix the range from 0 to 100 and rename the title to 'Labour Force Participation Rate(%)' to show complete name and units.| ![](img/16.png){ width=95% }|
 | 15 | Right click the age, choose the create then set to have a age set.| ![](img/17.png){ width=95% }|
-| 16 | Then check the 20-24 as the age-set.| ![](img/17.png){ width=95% }|
+| 16 | Then check the 20-24 as the age-set.| ![](img/17-2.png){ width=95% }|
 | 17 | Then drag the age-set to the color pane, and edit the color to red and blue to deferentiate and highlight the decrease at 20-24.| ![](img/18.png){ width=95% }|
 | 18 | Right click the bottom axis then uncheck show header.| ![](img/19.png){ width=95% }|
 | 19 | Right click in blank part of chart to choose annotate and area to add annotation.| ![](img/22.png){ width=95% }|
 | 20 | Double click the chart title to add new proper title and subtitle, then change to the proper format and font size.| ![](img/21.png){ width=95% }|
 | 21 | Right click the y-axis to add reference line to get an average level at different age group.| ![](img/23.png){ width=95% }|
-| 22 | Double click the chart title to add new proper title and subtitle, then change to the proper format and font size.| ![](img/21.png){ width=95% }|
+| 22 | Right click the triangle to choose the option of Entire View to get the whole show.| ![](img/29.png){ width=95% }|
 | 23 | Right click the sheet and choose duplicate to get a copy sheet.| ![](img/01.png){ width=95% }|
 | 24 | Then click the year triangle to choose edit filter to only check the 2010 and 2021.| ![](img/02.png){ width=95% }|
 | 25 | Right click the y-axis to choose remove reference line to get an average level at different age group.| ![](img/03.png){ width=95% }|
