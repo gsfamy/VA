@@ -1,0 +1,205 @@
+---
+title: "Take-home Exercise 4"
+description: |
+   Revealing the impact of COVID-19 on the stock prices of top 40 companies in Singapore by market capitalisation.
+author:
+  - name: Gong Shufen 
+    url: https://www.linkedin.com/public-profile/settings?trk=d_flagship3_profile_self_view_public_profile
+    affiliation: SMU MITB(AT)
+    affiliation_url: https://scis.smu.edu.sg/master-it-business/analytics-track/curriculum
+date: "`r Sys.Date()`"
+output: distill::distill_article
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(
+  fig.retina=3,
+  cache = FALSE,
+  echo = TRUE,
+  message = FALSE, 
+  warning = FALSE)
+```
+
+# 1. Overview
+
+In this take-home exercise, I will perform the tasks below:
+
++ Script stock prices of [top 40 companies in Singapore by market capitalisation](https://companiesmarketcap.com/singapore/largest-companies-in-singapore-by-market-cap/) between 1st January 2020 - 31st December 2021 by using [tidyquant](https://business-science.github.io/tidyquant/index.html) R package.
+
++ Using either calender heatmap or horizon graph, prepare a data visualisation showing the historical stock prices by the top 40 companies by market capitalisation.
+
+# 2. Installing and loading the required libraries
+
+Next, we would run the following code to validate if the required packages are installed. In the event that the packages are not installed, the code will install the missing packages. Afterwhich, the code would read the required package library onto the current environment.
+
+```{r}
+packages = c('tidyverse', 'knitr', 'dplyr',
+             'tidyquant', 'ggthemes', 
+             'data.table', 'ggHoriPlot')
+for (p in packages) {
+  if(!require(p,character.only = T)){
+    install.packages(p)
+  }
+  library(p,character.only = T)
+}
+```
+
+# 3. Data Preparation
+
+## 3.1 Data import
+
+The code chunk below imports *Largest companies in SG.csv* into R environment by using [read_csv()](https://readr.tidyverse.org/reference/read_delim.html) function of readr package in tidyverse family.
+
+```{r}
+SGcap<- read_csv("data/Largest companies in SG.csv")
+```
+
+Because it is already ranked by market capitalisation, so it can get the Top 40 by using head() and extact only name and symbol for the next step. And to merge the name with the Yahoo symbol data, we need to rename them.
+
+```{r}
+t40 <- head(SGcap, 40) %>% select(Name,Symbol)
+t40 <- rename(t40, symbol = Symbol)
+t40 <- rename(t40, name = Name)
+```
+
+## 3.2 Extracting stock price from Yahoo Finance
+
+Displayed in the following line of codes, they are used to select the individual stock symbol that we wish to query with the specific time period which is from 1 January 2020 to 31 December 2021 and data frequency which is in weekly intervals from Yahoo Finance and this is mainly using the *tq_get()* function within the tidyquant R packages. *tq_get()* is able to retrieve date, volume, opening, highest, lowest, closing, and adjusted price.
+
+```{r}
+t40_weekly <- t40$symbol %>%
+  tq_get(get = "stock.prices", 
+         from = "2020-01-01", to = "2021-12-31") %>%
+  group_by(symbol) %>%
+  tq_transmute(select = NULL, 
+               mutate_fun = to.period, 
+               period  = "weeks")
+```
+## 3.3 Data wrangling
+
+In financial technical analysis, **rate of change (ROC)** are simple indicators showing the difference between today's closing price and the close N days ago.The ROC indicators show trend by remaining positive while an uptrend is sustained, or negative while a downtrend is sustained.
+
+A crossing up through zero may be used as a signal to buy, or a crossing down through zero as a signal to sell. How high (or how low when negative) the indicators get shows how strong the trend is.
+
+Therefore we will calculate this indicator for analysis, the formula is as follows.
+
+![](img/1.png)
+
+The code below is to create a new column for weekly rate of change of stock price according to this formula.
+
+```{r}
+t40_weekly$ROC <-
+  ((t40_weekly$adjusted-
+      shift(t40_weekly$adjusted))/
+      shift(t40_weekly$adjusted))*100
+```
+
+Then adding the company name for better understanding with symbols using *merge* function as the following code chunk shows.
+
+```{r}
+t40_stock_weekly <- merge(t40_weekly, t40, by = 'symbol')
+```
+
+Finally, reorder the data set according to the rank of market caplitalisation as the following code chunk shows.
+
+```{r}
+t40_stock_weekly <- t40_stock_weekly %>%
+  mutate(name =  
+           factor(name, levels = (t40$name))) %>%
+  arrange(name)
+```
+
+# 4. Data Visualiastion using horizon graph
+
+The Horizon Graph is a time series visualization developed at Panopticon Software. Many financial portfolio managers who want to see the performance of a large number of stocks at the same time will use it.
+
+Therefore, we use the Horizon plots to view the changes inperformance with reasonable precision. The code chunk below is to create the horizon plot using the ggHoriplot package.
+
+According to COVID-19 pandemic in Singapore in Wikipedia, the critical date of COVID-19 will be as follows.
+
+```{r, fig.width=8, fig.height=6}
+ggplot() +
+  geom_horizon(aes(date, ROC),data = t40_stock_weekly, 
+               origin = 0,
+               horizonscale = c(-15, -5, -1,  0,  1, 3, 5)) +
+  scale_fill_hcl(palette = 'RdBu') +
+  facet_grid(name~.) +
+  theme_few() +
+  theme(
+    panel.spacing.y=unit(0, "lines"),
+    plot.title = element_text(size=13),
+    strip.text.y = element_text(size = 7, angle = 0, hjust = 0),
+    legend.position = 'none',
+    axis.text.y = element_blank(),
+    axis.title.y = element_blank(),
+    axis.ticks.y = element_blank(),
+     axis.text.x = element_text(size = 7, angle = 90, hjust = 0,
+                                vjust = 0.5),
+    panel.border = element_blank()
+    ) +
+  scale_x_date(expand=c(0,0), 
+               date_breaks = "1 month", 
+               date_labels = "%b %Y",
+               limit=c(as.Date("2020-01-01"),
+                       as.Date("2021-12-31"))) +
+  xlab('Date') +
+  ggtitle('Stock Prices of Top 40 Companies in Singapore weekly(2020-2021)')+
+  geom_vline(xintercept = as.Date("2020-01-23"), 
+             color = "yellow",size = 1) +
+  geom_vline(xintercept = as.Date("2020-04-03"),
+             color = "yellow",size = 1) +
+  geom_vline(xintercept = as.Date("2020-06-02"), 
+             color = "yellow", size = 1) +
+  geom_vline(xintercept = as.Date("2020-10-13"), 
+             color = "yellow", size = 1) +
+  geom_vline(xintercept = as.Date("2021-04-23"),
+             color = "green", size = 1) + 
+  geom_vline(xintercept = as.Date("2021-09-24"), 
+             color = "green", size = 1)
+```
+
+# 5. Insights
+
+## 5.1 COVID-19 in Singapore from 2020 to 2021
+
++ *2020-01-23*: The COVID-19 pandemic in Singapore is part of the worldwide pandemic of coronavirus disease 2019 (COVID-19) caused by severe acute respiratory syndrome coronavirus 2 (SARS-CoV-2). The first case in Singapore was confirmed on *23 January 2020*. Early cases were primarily imported until local transmission began to develop in February and March. 
+
++ *2020-04-03*: In response to the first wave of COVID-19, Singapore enacted the "COVID-19 Control Order", announcing on *3 April 2020* a stringent set of preventive measures collectively called the "circuit breaker lockdown". Initially planned to be applied from 7 April to 4 May, the circuit breaker lockdown was extended to 1 June on 21 April following continued untraced transmission within the community. The Multi-Ministry Taskforce on 19 May announced the three-phased approach to resume activities safely with the gradual re-opening of economic activities in each phase.
+
++ *2020-06-02*: Phase 1 lasted for 17 days from *2 June* and ended on 18 June. Singapore was in Phase 3 from 28 December 2020 until 7 May 2021 following the rise of the Delta variant, it temporarily reverted to Phase 2 on 8 May,which was raised to "Phase 2 Heightened Alert" from 16 May to 13 June, "Phase 3 Heightened Alert" from 14 June to 21 July and "Phase 2 Heightened Alert" from 22 July 2021 to 9 August 2021.
+
++ *2020-10-13*: A significant milestone was achieved on *13 October* when it was announced that, for the first time since March, there were no local cases of infection. This was followed shortly by 16 October, when the number of active cases fell to less than 100 – the first time since 12 March,and by 25 November, when it was announced that there were no active clusters for the first time since the pandemic began.
+
++ *2021-04-23*: On *23 April 2021*, Singapore tightened restrictions due to the rising Delta wave of COVID-19. MOE also announced that all Singapore primary schools, secondary schools and junior colleges were to move to full home-based learning starting on 19 May.
+
++ *2021-09-24*: On *24 September 2021*, MOH announced that Singapore would enter the "Stabilisation Phase" from 27 September to 24 October 2021; group size limit for dining-in at regular food and beverage (F&B) outlets would be reduced to two vaccinated people from the current five. However, unvaccinated individuals with a valid negative pre-event test result, recovered people, and children aged 12 and below may be included in the group of two at F&B outlets. Similarly, working from home will be the default for employees able to do so On 20 October, it was announced that the Stabilisation Phase would be extended to *21 November*, due to concerns of the rapidly rising cases threatening to overwhelm the healthcare system.
+
+## 5.2 Impact of those key date of COVID-19
+
++ The first yellow line which means the date of first COVID-19 case in SG, the market started to act, as we can see, the blue interval became the red, the color changed to deeper and deeper, which means the stock price began to fall and the degree of the decrease was more and more significant.
+
++ The second yellow line which means start date of the low-control Phase 1 , so the market acted that the stock price started to increase sharply as we can the deep blue interval.
+
++ The time period between the third yellow line and the fourth yellow which means the covid-19 became to be moderate, so the stock price increased at the most of the time, and decrease slightly for the light red interval.
+
++ The first green line which represents the tightened restrictions, it affected the market, the price start to fall and become more serious for the deeper red interval.
+
++ The second green line which represents "Stabilisation Phase", so the market also became positive and the stock price start to rise.
+
++ The financial market is very sensitive to the external environment, and almost companies' stock price will be affected, and have positive influences if the external environment is good and vice versa. Therefore, the investors and companies need to pay more attention on those things.
+
++ However, as we can see that the rank 1 SEA, its most color is blue and almost deep blue, which means that the Garena wasn't affected as horrible as other companies. And its stock price increased in those timestone, and the increase was almost significant. The reason is that Garena is a Singaporean online game developer and publisher of free games. The COVID-19 cannot harm its business, on the contrary, almost people were stuck in their home and have more time to play games or surfing on the Internet.
+
+# 6. References and Resources:
+
++ [Using R to Scrape Financial Dataset](https://giniceseah.netlify.app/posts/2021-06-18-scraping-of-financial-dataset/#tidyquant-package)
+
++ [rate of change (ROC)](https://en.wikipedia.org/wiki/Momentum_(technical_analysis))
+
++ [It’s About Time
+Visualising and Analysing Time-Oriented Data](https://isss608-ay2021-22t2.netlify.app/lesson/lesson06/lesson06-it_is_about_time#53)
+
++ [COVID-19 pandemic in Singapore](https://en.wikipedia.org/wiki/COVID-19_pandemic_in_Singapore)
+
++ [Garena](https://en.wikipedia.org/wiki/Garena)
