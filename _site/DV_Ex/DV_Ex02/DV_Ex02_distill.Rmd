@@ -1,0 +1,123 @@
+---
+title: "DataViz Makeover 2"
+description: |
+   This interactive data visualisation aims to reveal inter- and intra-zonal public bus flows at the planning sub-zone level of January 2022.
+author:
+  - name: Gong Shufen 
+    url: https://www.linkedin.com/public-profile/settings?trk=d_flagship3_profile_self_view_public_profile
+    affiliation: SMU MITB(AT)
+    affiliation_url: https://scis.smu.edu.sg/master-it-business/analytics-track/curriculum
+date: "`r Sys.Date()`"
+output: distill::distill_article
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+# 1. Critique of Visualisation
+  
+The data visualization below is created by using data downloaded from LTA Datamall, URA region, planning area, and planning sub zone in order to visualize intra- and inter-zonal public ride bus flows in Singapore from January to December 2022. 
+
+![](img/original.png)
+
+## 1.1 Clarity
+
+1. **Missing Tittle:**  The visualization dashboard does not have a main title, and for each chart does not have the subtitle to elaborate the parimary insights from each graph.  For example, the users may even have no idea about the **adjacency matrix** and the usage of it. The visualization make the users more confusing rather than help them easier
+understanding the data and get useful insights. In addition, it  does not convey any key observation or insight of the visualization.
+
+2. **Improper Chart type:** The compress adjacency matrix is meaningless for users to read. For example, it needs the users to interact with the data, make mouse hover over the plot to show message in the tooltip, which should be the work for data analytics not the normal readers. Therefore, it should be a more appropriate way to use other graph without interaction.
+
+3. **Legend on Alphabetical Order:** The origin and destination order does not make sense on alphabetical order. For example, *Dhoby Ghaut* and *Farrer Park* are adjacent, but it is apart from each other on legend. So it is impossible for readers to find out any findings about adjacent zones different passenger flow.
+
+4. **No Data Source:** There is no data source for people can verify or trust. It should be added.
+
+## 1.2 Aesthetics
+
+1. **Same Color:** The chart used the same blue color for *trips generated from* and *trips attracted to*, it is not very easy for readers to aware that one is the station people come in, one is the station people come out. It should use single color to show the different day type and should use a very distinct color to distinguish the in and out. That will make the visualization more appealing and understandable.
+
+2. **Compressed adjacency matrix:** The figures size of the matrix is too small, finding it challenging for users to hover over and select the data they really want. Aesthetics suffer as a result of the small size, since watchers can hardly tell the difference between different zones, and users struggle to hover over then choose the data point they wish to watch. For example, it's quite tough to identify which trip accounts for the largest proportion of passengers on weekdays and hard to find the point from *Dhoby Ghaut* to *Farrer Park* on weekends.
+
+3. **Improper graphic layout:** The graphic layout is not neat. For example, the left bar chart is not aligned with the right one and also with the matrix. It should be aligned and the layout should be more appealing and neat.
+
+
+# 2. Proposed Design
+
+
+The initial sketch of proposed design is as follow:
+
+![](img/Draft.jpg)
+
+## 2.1 Advantages of proposed design
+
+### 2.1.1 Clarity
+
+1. **Title and subtitle:** For the revised visualization, users will be capable of understanding the objective of the chart and visualization tool by providing a clear dashboard main title. And the added subtitle will emphasize some of the chart's most important findings.
+
+2. **Chart type:** We can change the adjacency matrix to the choropleth map. A choropleth map is a type of thematic map in which areas are shaded or patterned in proportion to a statistical variable that represents an aggregate summary of a geographic characteristic within each area. For example, we can find out which community has the largest proportion of trips. In addition, because we can observe the adjacent zone by eyes so the legend order is no matter.
+
+3. **Data Source:** The revised one add data source at foot of visualization to be more reliable.
+
+4. **Annamination:** The revised one add anamination for origins and destinations for barchart, and the annamination of map from time to time. It can help users to identify the change and the differences more easily.
+
+
+## 2.2 Aesthetics
+
+1. **Color:** Different colors will be used for the map and bar charts about the trips generated from and attracted to a certain sub-zone, so that users can recognize the difference with only a look. Using distinct colors to symbolize two separate situations will also make it more aesthetically attractive.
+
+2. **Proper Layout:** The revised one ensure all the map and bar charts are aligned to be more valuable aesthetics.
+
+3. **Annamination:** The annamination make the visulization more attractive and beautiful, and also do not need so much origin and destination filters which make the content repetition.
+
+
+# Proposed Visualisation on Tableau
+
+Please view the proposed visualization on Tableau Public [here](https://public.tableau.com/app/profile/amy3598/viz/Dataviz2_16484045956840/Dashboard1?publish=yes)
+
+![](img/designed publish.png)
+
+# 4. Step-By-Step Preparation
+
+| No | Step | Action |
+|:-:| :--------|:-------------|
+| 1 | Open tableau, drag data files *MP14_SUBZONE_WEB_PL.shp* and *origin_destination_bus__SZ_202201.csv* into the open panel.|![](img/2.png){ width=95% }|
+| 2 | Create a relationship between the two files by Subzone N in the shape file equals to the Destination Sz in the csv file.|![](img/3.png){ width=95% }|
+| 3 | Right click the worksheet and convert the attribute *Time Per Hour* to Dimension.|![](img/4.png){ width=95% }|
+| 4 | Drag time per hour to columns, day type and total trips to rows. Then drag time per hour and origin sz to filters.| ![](img/7.png){ width=95% }|
+| 5 | Right click Origin Sz under filters, click show filter, choose single value (list).| ![](img/9.png){ width=95% }|
+| 6 | Press control and right click weekday and weekends/holidays on the vertical axis, choose rotate label.| ![](img/10.png){ width=95% }|
+| 7 | Right click the total trips and select *edit the axis*.| ![](img/11.png){ width=95% }|
+| 8 | Find the axis title and delete the content.| ![](img/12.png){ width=95% }|
+| 9 | Drag the *Origin Sz* to the pages to get the annaminations.| ![](img/13.png){ width=95% }|
+| 10 | Double click the chart title and edit to *Trips Generated From <Page Name> at Different Time* and subtitle to *The most number of trips generated from TAMPINES EAST*. Then change the color and font size as the screenshot.| ![](img/change title for origin.png){ width=95% }|
+| 11 | Rename the worksheet to *Origin*.| ![](img/15.png){ width=95% }|
+| 12 | Right click the Origin sheet then choose duplicate.| ![](img/16.png){ width=95% }|
+| 13 | Drag the *Origin Sz* back and drag the *Destination Sz* to pages and filiters.| ![](img/18.png){ width=95% }|
+| 14 | Right click the *Destination Sz* in filters to choose show filters and change to single value list as before.| ![](img/17.png){ width=95% }|
+| 15 | Click the color, change to red.| ![](img/change to red bar.png){ width=95% }|
+| 16 | Double click the chart title and edit to *Trips Attracted to <Page Name> at Different Time* and subtitle to *The most number of trips attracted to TAMPINES EAST*. Then change the color and font size as the screenshot.| ![](img/change title for destination.png){ width=95% }|
+| 17 | Rename the worksheet to *Destination*.| ![](img/19.png){ width=95% }|
+| 18 | Click to create new worksheet, drag geometry to detail.| ![](img/20.png){ width=95% }|
+| 19 | Drag *Origin Sz* to filters. Drag sum(total trips) to colour. Drag destination SZ to Detail.| ![](img/22.png){ width=95% }|
+| 20 | Right click the *Origin Sz* in filters to choose show filters.| ![](img/23.png){ width=95% }|
+| 21 | Right click the *Origin Sz* and change to single value list as before.| ![](img/24.png){ width=95% }|
+| 22 | Drag the *Time per hour* to the pages panel.| ![](img/25.png){ width=95% }|
+| 23 | Rename this worksheet to *Choropleth Map*.| ![](img/26.png){ width=95% }|
+| 24 | Click SUM(total trips), select quick table calculation, select percent of total.| ![](img/28.png){ width=95% }|
+| 25 | Click colour, choose edit colors, change to red and select stepped colour, change opacity to 80%.| ![](img/29.png){ width=95% }|
+| 26 |  Double click chart title, change to *Trips Generated from <Origin Sz> at <Page Name> O'clock* and subttitle *About 63.47% of trips from TAMPINES EAST to TAMPINES WEST and TAMPINES EAST*. Then change the color and font size as the screenshot.| ![](img/change title for map.png){ width=95% }|
+| 27 | Right click new dashboard to create a dashboard.| ![](img/30-0.png){ width=95% }|
+| 28 | Drag the worksheet to the positions show in the screenshot.| ![](img/30.png){ width=95% }|
+| 29 | Select the button of *show dashboard title*.| ![](img/33.png){ width=95% }|
+| 30 | Change the dashboard title to *Singapore Inter- and Intra-zonal Public Bus Flows January 2022*.| ![](img/34.png){ width=95% }|
+| 31 | Drag the text to the dashboard below the bar charts, edit to *Data Source: https://data.gov.sg/ & https://datamall.lta.gov.sg/content/datamall/en.html.|* ![](img/35.png){ width=95% }|
+| 32 | Lastly click the server, choose tableau public and save as tableau public .| ![](img/36.png){ width=95% }|
+
+
+# 5. Major Observations
+
+1. **Public bus services are used by short-distance passengers .** According to the geovisual analysis, for bus travels, we may learn about the basic destination distribution trends. The majority of bus services operate inside the same sub-zone or between neighbouring sub-zones in the same region. For example, if we choose origin sub-zone such as tampines east as shown below, we will see that 63.47% of bus trips are serving destinations within tampines east and west.
+
+2. **More need of public bus services in weekday than weekends in general** : No matter which orgin or destination subzone, the trips number are much more in weekday than weekends. For example, the trips are 202,067 to tampines east at 7am (the largest number in a day) on weekday but 62,980 at 12am (the largest number in a day) on weekends/holiday. Therefore the bus services should plan according to this situation to get better passengers experience and cost-benefits.
+
+3. **Big difference between weekday and weekends in some specific subzones:** 
+In central subzone and cecil, the trips at 7am and 8am is extremely high than weekends or hoildays, and from the annamination the tampines subzone has more trips than other subzones. The service should adjust the route plan and best choose those positions betwwen communities which have more needs.
